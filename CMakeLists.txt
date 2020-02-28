@@ -17,13 +17,16 @@ if(VERBOSE)
     endforeach()
 endif()
 
-set(SOURCE
-        src/llvmes/nes/rom.cpp
-        src/llvmes/interpreter/cpu.cpp
-        src/llvmes/interpreter/cpu.h
-        )
 
-add_library (${PROJECT_NAME} ${SOURCE})
+set(GLFW_BUILD_TESTS OFF)
+set(GLFW_BUILD_EXAMPLES OFF)
+set(SPDLOG_BUILD_TESTS OFF)
+set(SPDLOG_BUILD_EXAMPLES OFF)
+
+add_library (${PROJECT_NAME})
+add_subdirectory(ext) # Contains graphical dependencies
+add_subdirectory(src/llvmes) # Source of llvmes
+
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${LLVM_INCLUDE_DIRS}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
@@ -32,12 +35,20 @@ add_definitions(${LLVM_DEFINITIONS})
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC
-        ${LLVM_AVAILABLE_LIBS}
+            ${LLVM_AVAILABLE_LIBS}
+            imgui
+            glfw
+            spdlog
+            glad
     )
 else()
     target_link_libraries(${PROJECT_NAME} PUBLIC
-        LLVM
-        dl
+            LLVM
+            dl
+            imgui
+            glfw
+            spdlog
+            glad
     )
 endif()
 
