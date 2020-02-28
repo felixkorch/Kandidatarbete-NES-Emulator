@@ -1,135 +1,165 @@
-#include "debugger.h"
+#include <imgui.h>
+#include <llvmes/graphics/application.h>
+#include <llvmes/graphics/log.h>
+#include <llvmes/interpreter/cpu.h>
 
-#include <QDebug>
-#include <QMainWindow>
-#include <QString>
-#include <QtConcurrent/QtConcurrent>
 #include <fstream>
+#include <iostream>
 
-Debugger::Debugger(const std::string& path)
-    : m_cpu(std::make_shared<llvmes::CPU>()),
-      m_memory(0x10000),
-      m_running(false)
-{
-    connect(&this->m_run_watcher, SIGNAL(finished()), this, SLOT(RunStop()));
+#include "ext/imgui-filebrowser/imfilebrowser.h"
+#include "imgui_log.h"
 
-    // Setup memory
-    std::ifstream in{path, std::ios::binary};
-    if (in.fail())
-        throw std::runtime_error("Debugger: Couldn't find program!");
-    m_memory = std::vector<char>{std::istreambuf_iterator<char>(in),
-                                 std::istreambuf_iterator<char>()};
+using namespace llvmes;
 
-    // Setup CPU
-    m_cpu->Read = [this](std::uint16_t addr) { return m_memory[addr]; };
-    m_cpu->Write = [this](std::uint16_t addr, std::uint8_t value) {
-        m_memory[addr] = value;
-    };
-    m_cpu->Reset();
-}
+class DebuggerGUI : public gfx::Application {
+    bool p_open = true;
 
-void Debugger::Step()
-{
-    if (m_running) {
-        qCritical("Debugger: Cant step while CPU is running!");
-        return;
-    }
-    m_cpu->Step();
-    emit Signal_Step();
-}
+    std::uint8_t x = 0, y = 0, a = 0, sp = 0;
+    std::uint16_t pc = 0;
 
-void Debugger::Run()
-{
-    if (m_running) {
-        qCritical("Debugger: Cant do this while CPU is running!");
-        return;
+    llvmes::CPU cpu;
+    std::vector<char> memory;
+
+    BasicLog log;
+    llvmes::DisassemblyMap disassembly;
+
+    ImGui::FileBrowser file_dialog;
+
+   public:
+    DebuggerGUI() : Application(1200, 800, "Test UI"), memory(0x10000)
+    {
+        cpu.Read = [this](std::uint16_t addr) { return memory[addr]; };
+        cpu.Write = [this](std::uint16_t addr, std::uint8_t data) {
+            memory[addr] = data;
+        };
+        cpu.Reset();
+        cpu.reg_pc = 0x0400;
     }
 
-    m_running = true;
-    emit Signal_RunStart();
-    qInfo("Debugger: CPU Started");
+    void Step()
+    {
+        cpu.Step();
+        x = cpu.reg_x;
+        y = cpu.reg_y;
+        a = cpu.reg_a;
+        sp = cpu.reg_sp;
+        pc = cpu.reg_pc;
 
-    auto future = QtConcurrent::run([this]() {
-        while (m_running) {
-            switch (m_cpu->reg_pc) {
-                case 0x336D:
-                    qInfo("Skip decimal add/subtract test.");
-                    m_cpu->reg_pc = 0x3405;
-                    break;
-                case 0x3411:
-                    qInfo("Skip decimal/binary switch test.");
-                    m_cpu->reg_pc = 0x345D;
-                    break;
-                case 0x346F:
-                    qInfo("Skip decimal/binary switch test.");
-                    m_cpu->reg_pc = 0x35A1;
-                    break;
-                case 0x3469:
-                    qInfo("Test succeeded!!!!!!!!!!!");
-                    return;
-                default:
-                    break;
+        auto entry = disassembly.find(pc);
+
+        log.AddLog("[%s]:\t\t %s\n", ToHexString(entry->first).c_str(),
+                   entry->second.c_str());
+    }
+
+    void OpenFile(const std::string& path)
+    {
+        std::ifstream in{path, std::ios::binary};
+        if (in.fail())
+            throw std::runtime_error(
+                "Something went wrong with opening the file!");
+
+        std::copy(std::istreambuf_iterator<char>(in),
+                  std::istreambuf_iterator<char>(), memory.begin());
+
+        disassembly = cpu.Disassemble(0x0000, 0xFFFF);
+    }
+
+    void OnImGui() override
+    {
+        file_dialog.Display();
+
+        if (file_dialog.HasSelected()) {
+            LLVMES_TRACE("[File] {}", file_dialog.GetSelected().string());
+            try {
+                OpenFile(file_dialog.GetSelected().string());
             }
-            m_cpu->Step();
-            AddToCache(m_cpu->reg_pc);
+            catch (std::runtime_error& e) {
+                e.what();
+            }
+
+            file_dialog.ClearSelected();
         }
-        qInfo("Debugger: CPU Stopped");
-    });
 
-    this->m_run_watcher.setFuture(future);
-}
+        if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Open", "Ctrl+O")) {
+                    file_dialog.SetTypeFilters({".bin", ".asm"});
+                    file_dialog.SetTitle("Open a binary file");
+                    file_dialog.Open();
+                }
+                if (ImGui::BeginMenu("Open Recent")) {
+                    ImGui::MenuItem("fish_hat.c");
+                    ImGui::MenuItem("fish_hat.inl");
+                    ImGui::MenuItem("fish_hat.h");
+                    ImGui::EndMenu();
+                }
+                if (ImGui::MenuItem("Quit", "Alt+F4")) {
+                }
 
-void Debugger::Stop()
-{
-    m_running = false;
-    emit Signal_RunStop();
-}
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
 
-void Debugger::RunWithBP(std::uint16_t addr)
-{
-    if (m_running) {
-        qCritical("Debugger: Cant do this while CPU is running!");
-        return;
+        ImGui::SetNextWindowPos(ImVec2(50, 50));
+        ImGui::SetNextWindowSize(ImVec2(400, 300));
+        ImGui::Begin("Register View", &p_open,
+                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+        ImGui::Text("Register View");
+
+        ImGui::Columns(2, "outer", false);
+        ImGui::Separator();
+        {
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Text("Reg A: %s", ToHexString(a).c_str());
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Text("Reg X: %s", ToHexString(x).c_str());
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Text("Reg Y: %s", ToHexString(y).c_str());
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Text("Reg SP: %s", ToHexString(sp).c_str());
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Text("Reg PC: %s", ToHexString(pc).c_str());
+
+            ImGui::NextColumn();
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            if (ImGui::Button("Step", ImVec2(120, 40))) {
+                Step();
+            }
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Button("Run", ImVec2(120, 40));
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Button("Reset", ImVec2(120, 40));
+        }
+
+        ImGui::End();
+
+        log.Draw("Disassembly: History", &p_open);
     }
 
-    m_running = true;
-    emit Signal_RunStart();
-    qInfo("Debugger: CPU Started");
+    void OnEvent(gfx::Event& e) override {}
 
-    auto future = QtConcurrent::run([this, addr]() {
-        std::uint16_t pc = m_cpu->reg_pc;
-        while (pc != addr && m_running) {
-            pc = m_cpu->reg_pc;
-            m_cpu->Step();
-            AddToCache(pc);
-        }
-        qInfo("Debugger: Stopped at breakpoint");
-        Stop();
-    });
+    void OnUpdate() override {}
+};
 
-    this->m_run_watcher.setFuture(future);
+int main()
+try {
+    DebuggerGUI ui;
+    ui.Run();
 }
-
-void Debugger::RunStop()
-{
-    emit Signal_RunStop();
-}
-
-void Debugger::Reset()
-{
-    if (m_running) {
-        qCritical("Debugger: Can't do this while running");
-        return;
-    }
-    m_cpu->Reset();
-    m_running = false;
-    qInfo("Debugger: Reset");
-    emit Signal_Reset();
-}
-
-void Debugger::AddToCache(std::uint16_t addr)
-{
-    if (m_cache.size() == CACHE_SIZE)
-        m_cache.pop();
-    m_cache.push(addr);
+catch (std::exception& e) {
+    std::cerr << e.what() << std::endl;
 }
