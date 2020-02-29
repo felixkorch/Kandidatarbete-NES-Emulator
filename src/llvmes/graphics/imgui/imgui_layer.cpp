@@ -64,9 +64,11 @@ void ImGuiLayer::Create()
     io.FontGlobalScale = 1.0f / pixel_ratio_x;
     ImGui::GetStyle().ScaleAllSizes(pixel_ratio_x);
 
+    #ifndef NDEBUG
     LLVMES_TRACE("Framebuffer size ({}, {})", w, h);
     LLVMES_TRACE("Window size ({}, {})", window_size_x, window_size_y);
     LLVMES_TRACE("Pixel ratio: {}", pixel_ratio_x);
+    #endif
 }
 void ImGuiLayer::SetStyle(ImGuiStyle& style)
 {
