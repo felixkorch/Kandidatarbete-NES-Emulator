@@ -17,8 +17,6 @@ Application::Application(int width, int height, const std::string& program_name)
     // on some level of the program
     m_window = std::make_unique<Window>(width, height, program_name);
 
-    std::cout << "Window successfully created" << std::endl;
-
     // Init the log library
     Log::Init();
 

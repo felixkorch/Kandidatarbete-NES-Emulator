@@ -157,14 +157,20 @@ class Debugger : public gfx::Application {
                     file_dialog.SetTitle("Open a binary file");
                     file_dialog.Open();
                 }
-                if (ImGui::BeginMenu("Open Recent")) {
-                    for (const std::string& line : cache) {
-                        fs::path p(line);
-                        std::string file_name = p.filename().string();
-                        if (ImGui::MenuItem(file_name.c_str()))
-                            OpenFile(line);
+
+                if (cache.empty()) {
+                    ImGui::MenuItem("Open Recent");
+                }
+                else {
+                    if (ImGui::BeginMenu("Open Recent")) {
+                        for (const std::string& line : cache) {
+                            fs::path p(line);
+                            std::string file_name = p.filename().string();
+                            if (ImGui::MenuItem(file_name.c_str()))
+                                OpenFile(line);
+                        }
+                        ImGui::EndMenu();
                     }
-                    ImGui::EndMenu();
                 }
                 if (ImGui::MenuItem("Quit", "Alt+F4")) {
                     Terminate();
