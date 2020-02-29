@@ -3,6 +3,7 @@
 #include <llvmes/graphics/log.h>
 #include <llvmes/interpreter/cpu.h>
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -12,7 +13,7 @@
 #include "cache.h"
 #include "imgui_log.h"
 
-namespace llvmes::dbg {
+using namespace llvmes;
 
 class Debugger : public gfx::Application {
     volatile bool cpu_should_run = false;
@@ -32,7 +33,7 @@ class Debugger : public gfx::Application {
     MemoryEditor mem_edit;
 
    public:
-    Debugger() : Application(1200, 800, "LLVMES - Debugger"), memory(0x10000)
+    Debugger() : gfx::Application(1200, 800, "LLVMES - Debugger"), memory(0x10000)
     {
         cpu.Read = [this](std::uint16_t addr) { return memory[addr]; };
         cpu.Write = [this](std::uint16_t addr, std::uint8_t data) {
@@ -233,11 +234,9 @@ class Debugger : public gfx::Application {
     }
 };
 
-}  // namespace llvmes::dbg
-
 int main()
 try {
-    llvmes::dbg::Debugger ui;
+    Debugger ui;
     ui.Run();
 }
 catch (std::exception& e) {

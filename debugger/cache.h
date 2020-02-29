@@ -7,8 +7,6 @@
 
 namespace fs = std::filesystem;
 
-namespace llvmes::dbg {
-
 class RecentlyOpened {
    public:
     static void Write(const std::string& str)
@@ -42,10 +40,12 @@ class RecentlyOpened {
 
     static std::vector<std::string> GetCache()
     {
+        // If cache doesn't exist return an empty vector
         fs::path cache_path(fs::current_path() / ".debugger");
         if (!fs::exists(cache_path))
             return {};
 
+        // Otherwise read each line into memory and return it
         std::vector<std::string> lines;
         std::ifstream cache(cache_path);
         std::string line;
@@ -53,5 +53,3 @@ class RecentlyOpened {
         return std::move(lines);
     }
 };
-
-}
