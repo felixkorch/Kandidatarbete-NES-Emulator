@@ -1,7 +1,7 @@
 #include "llvmes/graphics/imgui/imgui_layer.h"
-#include "llvmes/graphics/imgui/imgui_renderer.h"
 #include "llvmes/graphics/application.h"
 #include "llvmes/graphics/event.h"
+#include "llvmes/graphics/imgui/imgui_renderer.h"
 
 #include <GLFW/glfw3.h>
 
@@ -18,7 +18,7 @@ void ImGuiLayer::Create()
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     io.KeyMap[ImGuiKey_Tab] = LLVMES_KEY_TAB;
     io.KeyMap[ImGuiKey_LeftArrow] = LLVMES_KEY_LEFT;
@@ -58,15 +58,15 @@ void ImGuiLayer::Create()
     pixel_ratio_x = (float)w / (float)window_size_x;
     pixel_ratio_y = (float)h / (float)window_size_y;
 
-    io.Fonts->AddFontFromFileTTF("verdana.ttf", 18.0f * pixel_ratio_x, NULL,
-                                 NULL);
+    io.Fonts->AddFontFromFileTTF("verdana.ttf", 18.0f * pixel_ratio_x, nullptr,
+                                 nullptr);
 
-    io.FontGlobalScale = 1.0 / pixel_ratio_x;
+    io.FontGlobalScale = 1.0f / pixel_ratio_x;
     ImGui::GetStyle().ScaleAllSizes(pixel_ratio_x);
 
-    LLVMES_INFO("Framebuffer size ({}, {})", w, h);
-    LLVMES_INFO("Window size ({}, {})", window_size_x, window_size_y);
-    LLVMES_INFO("Pixel ratio: {}", pixel_ratio_x);
+    LLVMES_TRACE("Framebuffer size ({}, {})", w, h);
+    LLVMES_TRACE("Window size ({}, {})", window_size_x, window_size_y);
+    LLVMES_TRACE("Pixel ratio: {}", pixel_ratio_x);
 }
 void ImGuiLayer::SetStyle(ImGuiStyle& style)
 {
