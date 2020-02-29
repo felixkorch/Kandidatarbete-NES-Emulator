@@ -159,7 +159,8 @@ class Debugger : public gfx::Application {
                 if (ImGui::BeginMenu("Open Recent")) {
                     for (const std::string& line : cache) {
                         fs::path p(line);
-                        if (ImGui::MenuItem(p.filename().c_str()))
+                        std::string file_name = p.filename().string();
+                        if (ImGui::MenuItem(file_name.c_str()))
                             OpenFile(line);
                     }
                     ImGui::EndMenu();
