@@ -29,6 +29,11 @@ class Debugger : public gfx::Application {
                 LLVMES_TRACE("G key down!");
             }
         }
+        else if(e.GetEventType() == gfx::EventType::MouseMoveEvent) {
+            auto& ev = (gfx::MouseMoveEvent&)e;
+            auto [x, y] = ev.GetPosition();
+            LLVMES_TRACE("Mouse position: {} {}", x, y);
+        }
     }
 
     void OnUpdate() override {}

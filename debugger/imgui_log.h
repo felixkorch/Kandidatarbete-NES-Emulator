@@ -35,14 +35,17 @@ struct BasicLog {
 
     void Draw(const char* title, bool* p_open = NULL)
     {
-        ImGui::SetNextWindowPos(ImVec2(500, 50));
-        ImGui::SetNextWindowSize(ImVec2(500, 700));
+        ImGui::SetNextWindowPos(ImVec2(500, 80));
+        ImGui::SetNextWindowSize(ImVec2(500, 600));
         if (!ImGui::Begin(
             title, p_open,
             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize)) {
             ImGui::End();
             return;
         }
+
+        ImGui::Text("Dissasembly View");
+        ImGui::Separator();
 
         // Options menu
         if (ImGui::BeginPopup("Options")) {
