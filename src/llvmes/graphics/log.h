@@ -19,24 +19,21 @@ class Log {
 
 }  // namespace llvmes
 
-#define LLVMES_WARN(...) Log::GetLogger()->warn(__VA_ARGS__)
-#define LLVMES_ERROR(...) Log::GetLogger()->error(__VA_ARGS__)
-#define LLVMES_TRACE(...) Log::GetLogger()->trace(__VA_ARGS__)
-#define LLVMES_INFO(...) Log::GetLogger()->info(__VA_ARGS__)
-#define LLVMES_FATAL(...) Log::GetLogger()->fatal(__VA_ARGS__)
+#define LLVMES_WARN(...) ::llvmes::Log::GetLogger()->warn(__VA_ARGS__)
+#define LLVMES_ERROR(...) ::llvmes::Log::GetLogger()->error(__VA_ARGS__)
+#define LLVMES_TRACE(...) ::llvmes::Log::GetLogger()->trace(__VA_ARGS__)
+#define LLVMES_INFO(...) ::llvmes::Log::GetLogger()->info(__VA_ARGS__)
+#define LLVMES_FATAL(...) ::llvmes::Log::GetLogger()->fatal(__VA_ARGS__)
 
-// This is a macro that will do an assert and will work in both
-// debug and release builds. In release mode it will print an error
-// and terminate the program instead of a normal assert.
+// Assert if debug mode otherwise don't.
 #ifndef NDEBUG
-#define LLVMES_ASSERT(condition, message)                                      \
-    do {                                                                       \
-        if (!(condition)) {                                                    \
-            std::cerr << "Assertion `" #condition "` failed in " << __FILE__   \
-                      << " line " << __LINE__ << ": " << message << std::endl; \
-            std::terminate();                                                  \
-        }                                                                      \
-    } while (false)
+#define LLVMES_ASSERT(x, ...)                                   \
+    {                                                       \
+        if (!(x)) {                                         \
+            LLVMES_ERROR("Assertion Failed: {0}", __VA_ARGS__); \
+            __debugbreak();                                 \
+        }                                                   \
+    }
 #else
-#define LLVMES_ASSERT(condition, message)
+#define LLVMES_ASSERT(x, ...)
 #endif

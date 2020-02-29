@@ -2,6 +2,7 @@
 #include "llvmes/graphics/event.h"
 
 #include <string>
+#include <functional>
 
 namespace llvmes::gfx {
 

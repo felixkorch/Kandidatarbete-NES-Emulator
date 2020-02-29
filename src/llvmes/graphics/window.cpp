@@ -4,6 +4,8 @@
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 
+#include <iostream>
+
 namespace llvmes::gfx {
 
 Window::Window(int width, int height, const std::string& title, bool vsync)
