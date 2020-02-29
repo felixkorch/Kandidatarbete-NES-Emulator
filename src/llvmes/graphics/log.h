@@ -30,7 +30,7 @@ class Log {
 #define LLVMES_ASSERT(x, ...)                                   \
     {                                                       \
         if (!(x)) {                                         \
-            LLVMES_ERROR("Assertion Failed: {0}", __VA_ARGS__); \
+            std::cerr << ("Assertion Failed: {0}", __VA_ARGS__); \
             __debugbreak();                                 \
         }                                                   \
     }
