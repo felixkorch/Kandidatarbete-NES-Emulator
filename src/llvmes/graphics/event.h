@@ -35,10 +35,7 @@ class WindowResizeEvent : public Event {
 
     EventType GetEventType() override { return EventType::WindowResizeEvent; }
 
-    std::pair<int, int> GetNewSize()
-    {
-        return std::make_pair(m_width, m_height);
-    }
+    auto GetNewSize() { return std::pair{m_width, m_height}; }
 
    private:
     int m_width, m_height;
@@ -114,7 +111,7 @@ class MouseMoveEvent : public Event {
    public:
     MouseMoveEvent(float x, float y) : m_x(x), m_y(y) {}
     EventType GetEventType() override { return EventType::MouseMoveEvent; }
-    std::pair<float, float> GetPosition() { return std::make_pair(m_x, m_y); }
+    auto GetPosition() { return std::pair{m_x, m_y}; }
 
    private:
     float m_x, m_y;
@@ -127,7 +124,7 @@ class MouseScrollEvent : public Event {
     {
     }
     EventType GetEventType() override { return EventType::MouseScrollEvent; }
-    std::pair<int, int> GetOffset() { return std::make_pair(m_y_offset, m_y_offset); }
+    auto GetOffset() { return std::pair{m_x_offset, m_y_offset}; }
 
    private:
     int m_x_offset, m_y_offset;
