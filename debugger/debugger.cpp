@@ -57,9 +57,10 @@ class Debugger : public gfx::Application {
         pc = cpu.reg_pc;
 
         auto entry = disassembly.find(pc);
+        std::string str = (entry != disassembly.end()) ? entry->second : "Illegal OP";
 
-        log.AddLog("[%s]\t %s\n", ToHexString(entry->first).c_str(),
-                   entry->second.c_str());
+        log.AddLog("[%s]\t %s\n", ToHexString(pc).c_str(),
+                   str.c_str());
     }
 
     void Reset()
