@@ -166,10 +166,9 @@ inline std::string ToHexString<bool>(bool i)
 
 inline int HexStringToInt(const std::string& in)
 {
-    auto strip_zeroes = [](const std::string& s) {
-        std::string temp = s;
+    auto strip_zeroes = [](std::string temp) {
         while (temp.at(0) == '0') temp = temp.substr(1);
-        return temp;
+        return std::move(temp);
     };
 
     std::string out;
