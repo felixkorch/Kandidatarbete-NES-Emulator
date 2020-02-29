@@ -19,6 +19,7 @@ class Application {
     virtual void OnEvent(Event& e);
 
     void Run();
+    void Terminate();
 
     static Application& Get();
     Window& GetWindow() { return *m_window; }

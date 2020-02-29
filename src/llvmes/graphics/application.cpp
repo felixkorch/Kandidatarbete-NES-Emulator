@@ -86,6 +86,11 @@ void Application::Run()
     }
 }
 
+void Application::Terminate()
+{
+    m_running = false;
+}
+
 Application& Application::Get()
 {
     LLVMES_ASSERT(s_application != nullptr, "An application does not exist");
