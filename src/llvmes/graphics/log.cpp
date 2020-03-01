@@ -15,7 +15,7 @@ void Log::Init()
     s_logger->set_level(spdlog::level::trace);
 }
 
-std::shared_ptr<spdlog::logger> Log::GetLogger()
+std::shared_ptr<spdlog::logger>& Log::GetLogger()
 {
     LLVMES_ASSERT(s_logger != nullptr,
                   "Trying to get logger without initializing it, initialize by "

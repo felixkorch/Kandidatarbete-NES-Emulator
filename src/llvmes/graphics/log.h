@@ -10,7 +10,7 @@ namespace llvmes {
 // start of the program
 class Log {
    public:
-    static std::shared_ptr<spdlog::logger> GetLogger();
+    static std::shared_ptr<spdlog::logger>& GetLogger();
     static void Init();
 
    private:
