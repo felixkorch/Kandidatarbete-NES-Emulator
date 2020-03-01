@@ -34,7 +34,7 @@ class RecentlyOpened {
         // Otherwise add the new entry to cache
         LLVMES_INFO("New entry added to cache");
 
-        std::ofstream out(cache_path);
+        std::ofstream out(cache_path, std::ios_base::app);
         out << str + "\n";
     }
 
@@ -49,7 +49,12 @@ class RecentlyOpened {
         std::vector<std::string> lines;
         std::ifstream cache(cache_path);
         std::string line;
-        while (getline(cache, line)) lines.push_back(line);
+        while (getline(cache, line)) {
+            fs::path p(line);
+            if (!fs::exists(p))
+                continue;
+            lines.push_back(line);
+        }
         return std::move(lines);
     }
 };
