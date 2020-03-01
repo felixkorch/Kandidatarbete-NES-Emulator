@@ -8,6 +8,8 @@ namespace llvmes {
 // Singleton class that contains the global instance of the logger
 // Gets created on call to "Init" so make sure it's called somewhere in the
 // start of the program
+
+// TODO: Add client logger
 class Log {
    public:
     static std::shared_ptr<spdlog::logger>& GetLogger();
@@ -30,7 +32,7 @@ class Log {
 #define LLVMES_ASSERT(x, ...)                                   \
     {                                                       \
         if (!(x)) {                                         \
-            std::cerr << ("Assertion Failed: {0}", __VA_ARGS__); \
+            LLVMES_ERROR("Assertion Failed: {0}", __VA_ARGS__); \
             __debugbreak();                                 \
         }                                                   \
     }

@@ -17,9 +17,9 @@ void Log::Init()
 
 std::shared_ptr<spdlog::logger>& Log::GetLogger()
 {
-    LLVMES_ASSERT(s_logger != nullptr,
-                  "Trying to get logger without initializing it, initialize by "
-                  "calling Log::Init() at the start of the program");
+    assert(s_logger != nullptr &&
+           "Trying to use Log-macros without initializing, call Log::Init()"
+           "at the start of the program");
     return s_logger;
 }
 
