@@ -31,22 +31,32 @@ class Debugger : public gfx::Application {
     ImGui::FileBrowser file_dialog;
     std::vector<std::string> cache;
     MemoryEditor mem_edit;
+    std::string loaded_file_path;
 
    public:
-    Debugger() : gfx::Application(1200, 800, "LLVMES - Debugger"), memory(0x10000)
+    Debugger()
+        : gfx::Application(1200, 800, "LLVMES - Debugger"), memory(0x10000)
     {
         cpu.Read = [this](std::uint16_t addr) { return memory[addr]; };
         cpu.Write = [this](std::uint16_t addr, std::uint8_t data) {
             memory[addr] = data;
         };
         cpu.Reset();
-        cpu.reg_pc = 0x0400;
 
         // Load the recently opened files
         cache = RecentlyOpened::GetCache();
     }
 
     void Stop() { cpu_should_run = false; }
+
+    void SaveBinary()
+    {
+        fs::path p(loaded_file_path);
+        std::string new_name = fs::path(p.parent_path() / p.stem()).string() + "_mod.bin";
+        std::ofstream out(new_name, std::ios::binary | std::ios::out);
+        out.write(memory.data(), memory.size());
+        LLVMES_INFO("{} written!", new_name);
+    }
 
     void Step()
     {
@@ -58,16 +68,15 @@ class Debugger : public gfx::Application {
         pc = cpu.reg_pc;
 
         auto entry = disassembly.find(pc);
-        std::string str = (entry != disassembly.end()) ? entry->second : "Illegal OP";
+        std::string str =
+            (entry != disassembly.end()) ? entry->second : "Illegal OP";
 
-        log.AddLog("[%s]\t %s\n", ToHexString(pc).c_str(),
-                   str.c_str());
+        log.AddLog("[%s]\t %s\n", ToHexString(pc).c_str(), str.c_str());
     }
 
     void Reset()
     {
         cpu.Reset();
-        cpu.reg_pc = 0x0400;
         log.Clear();
         x = cpu.reg_x;
         y = cpu.reg_y;
@@ -129,6 +138,7 @@ class Debugger : public gfx::Application {
 
         disassembly = cpu.Disassemble(0x0000, 0xFFFF);
         RecentlyOpened::Write(path);
+        loaded_file_path = path;
         LLVMES_INFO("Successfully loaded file");
     }
 
@@ -141,7 +151,7 @@ class Debugger : public gfx::Application {
                 OpenFile(file_dialog.GetSelected().string());
             }
             catch (std::runtime_error& e) {
-                e.what();
+                LLVMES_ERROR(e.what());
             }
 
             file_dialog.ClearSelected();
@@ -166,11 +176,20 @@ class Debugger : public gfx::Application {
                         for (const std::string& line : cache) {
                             fs::path p(line);
                             std::string file_name = p.filename().string();
-                            if (ImGui::MenuItem(file_name.c_str()))
-                                OpenFile(line);
+                            if (ImGui::MenuItem(file_name.c_str())) {
+                                try {
+                                    OpenFile(line);
+                                }
+                                catch (std::runtime_error& e) {
+                                    LLVMES_ERROR(e.what());
+                                }
+                            }
                         }
                         ImGui::EndMenu();
                     }
+                }
+                if (ImGui::MenuItem("Save", "Ctrl-S")) {
+                    SaveBinary();
                 }
                 if (ImGui::MenuItem("Quit", "Alt+F4")) {
                     Terminate();
@@ -198,32 +217,29 @@ class Debugger : public gfx::Application {
 
         ImGui::Columns(2, "outer", false);
         ImGui::Separator();
-        {
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            ImGui::Text("Reg A: %s", ToHexString(a).c_str());
-            ImGui::Dummy(ImVec2(0.0f, 10.0f));
-            ImGui::Text("Reg X: %s", ToHexString(x).c_str());
-            ImGui::Dummy(ImVec2(0.0f, 10.0f));
-            ImGui::Text("Reg Y: %s", ToHexString(y).c_str());
-            ImGui::Dummy(ImVec2(0.0f, 10.0f));
-            ImGui::Text("Reg SP: %s", ToHexString(sp).c_str());
-            ImGui::Dummy(ImVec2(0.0f, 10.0f));
-            ImGui::Text("Reg PC: %s", ToHexString(pc).c_str());
+        ImGui::Dummy(ImVec2(0.0f, 20.0f));
+        ImGui::Text("Reg A: %s", ToHexString(a).c_str());
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+        ImGui::Text("Reg X: %s", ToHexString(x).c_str());
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+        ImGui::Text("Reg Y: %s", ToHexString(y).c_str());
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+        ImGui::Text("Reg SP: %s", ToHexString(sp).c_str());
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+        ImGui::Text("Reg PC: %s", ToHexString(pc).c_str());
 
-            ImGui::NextColumn();
+        ImGui::NextColumn();
 
-            ImGui::Dummy(ImVec2(0.0f, 20.0f));
-            if (ImGui::Button("Step", ImVec2(120, 50)))
-                Step();
-            ImGui::Dummy(ImVec2(0.0f, 10.0f));
-            if (ImGui::Button(cpu_should_run ? "Stop" : "Run",
-                              ImVec2(120, 50))) {
-                cpu_should_run ? Stop() : RunCPU();
-            }
-            ImGui::Dummy(ImVec2(0.0f, 10.0f));
-            if (ImGui::Button("Reset", ImVec2(120, 50)))
-                Reset();
+        ImGui::Dummy(ImVec2(0.0f, 20.0f));
+        if (ImGui::Button("Step", ImVec2(120, 50)))
+            Step();
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+        if (ImGui::Button(cpu_should_run ? "Stop" : "Run", ImVec2(120, 50))) {
+            cpu_should_run ? Stop() : RunCPU();
         }
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+        if (ImGui::Button("Reset", ImVec2(120, 50)))
+            Reset();
 
         ImGui::End();
     }
