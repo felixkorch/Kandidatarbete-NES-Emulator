@@ -1,4 +1,4 @@
-#include "llvmes/graphics/log.h"
+#include "llvmes/common/log.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 
