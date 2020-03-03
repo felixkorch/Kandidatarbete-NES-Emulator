@@ -3,7 +3,8 @@
 
 #include <imgui.h>
 
-namespace llvmes::gfx {
+namespace llvmes {
+namespace gfx {
 
 // The functions in this class are supposed to be called after
 // creating an OpenGL context with GLFW. The purpose for this class is
@@ -19,4 +20,5 @@ class ImGuiLayer {
     static void ProcessEvents(Event& e);
 };
 
+}
 }

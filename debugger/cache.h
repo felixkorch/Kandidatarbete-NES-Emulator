@@ -1,5 +1,5 @@
 #pragma once
-#include <llvmes/graphics/log.h>
+#include <llvmes/common/log.h>
 
 #include <filesystem>
 #include <fstream>

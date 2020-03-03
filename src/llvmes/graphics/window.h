@@ -4,7 +4,8 @@
 #include <string>
 #include <functional>
 
-namespace llvmes::gfx {
+namespace llvmes {
+namespace gfx {
 
 class Window {
    public:
@@ -39,4 +40,5 @@ class Window {
     void* m_native_window = nullptr;
 };
 
-}  // namespace llvmes::gfx
+} // namespace gfx
+} // namespace llvmes

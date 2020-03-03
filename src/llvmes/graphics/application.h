@@ -2,11 +2,12 @@
 #include <queue>
 #include <string>
 
+#include "llvmes/common/log.h"
 #include "llvmes/graphics/event.h"
-#include "llvmes/graphics/log.h"
 #include "llvmes/graphics/window.h"
 
-namespace llvmes::gfx {
+namespace llvmes {
+namespace gfx {
 
 class Application {
    public:
@@ -32,5 +33,5 @@ class Application {
    private:
     static Application* s_application;
 };
-
-}  // namespace llvmes::gfx
+} // namespace gfx
+} // namespace llvmes

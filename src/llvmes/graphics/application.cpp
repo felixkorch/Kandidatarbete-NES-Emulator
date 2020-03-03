@@ -1,10 +1,11 @@
 #include "llvmes/graphics/application.h"
 #include "llvmes/graphics/imgui/imgui_layer.h"
-#include "llvmes/graphics/log.h"
+#include "llvmes/common/log.h"
 
 #include <iostream>
 
-namespace llvmes::gfx {
+namespace llvmes {
+namespace gfx {
 
 Application* Application::s_application = nullptr;
 
@@ -15,7 +16,7 @@ Application::Application(int width, int height, const std::string& program_name)
 
     // Attempts to create a window, can fail and expects a try-catch block
     // on some level of the program
-    m_window = std::make_unique<Window>(width, height, program_name);
+    m_window = std::unique_ptr<Window>(new Window(width, height, program_name));
 
     // Init the log library
     Log::Init();
@@ -95,4 +96,5 @@ Application& Application::Get()
     return *s_application;
 }
 
-}  // namespace llvmes::gfx
+} // namespace gfx
+} // namespace llvmes

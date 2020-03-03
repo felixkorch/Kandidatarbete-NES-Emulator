@@ -6,7 +6,8 @@
 
 #include <iostream>
 
-namespace llvmes::gfx {
+namespace llvmes {
+namespace gfx {
 
 Window::Window(int width, int height, const std::string& title, bool vsync)
     : m_width(width), m_height(height), m_vsync(vsync)
@@ -181,4 +182,5 @@ void Window::Clear(float r, float g, float b, float a)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-}  // namespace llvmes::gfx
+} // namespace gfx
+} // namespace llvmes

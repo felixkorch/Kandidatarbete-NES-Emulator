@@ -1,11 +1,12 @@
 #include "llvmes/graphics/imgui/imgui_layer.h"
+#include "llvmes/graphics/imgui/imgui_renderer.h"
 #include "llvmes/graphics/application.h"
 #include "llvmes/graphics/event.h"
-#include "llvmes/graphics/imgui/imgui_renderer.h"
 
 #include <GLFW/glfw3.h>
 
-namespace llvmes::gfx {
+namespace llvmes {
+namespace gfx {
 
 static float pixel_ratio_x, pixel_ratio_y;
 
@@ -225,4 +226,5 @@ void ImGuiLayer::ProcessEvents(Event& e)
     }
 }
 
-}  // namespace llvmes::gfx
+} // namespace gfx
+} // namespace llvmes
