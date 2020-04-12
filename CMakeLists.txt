@@ -28,8 +28,9 @@ set(SOURCE
     src/llvmes/dynarec/disassembler.h
     src/llvmes/dynarec/6502_opcode.h
     src/llvmes/common.h
-    src/llvmes/dynarec/codegen.h
+    src/llvmes/dynarec/compiler.h
     src/llvmes/dynarec/codegen.cpp
+    src/llvmes/dynarec/compiler.cpp
     src/jitter/jitter.h
     src/jitter/jitter.cpp
 )

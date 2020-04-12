@@ -217,6 +217,7 @@ class Disassembler {
     AST ast;
     std::vector<uint8_t> data;
     std::queue<AST::iterator> branches;
+    size_t program_size;
 
     AST::iterator InsertLabelBefore(uint16_t index, const std::string& name)
     {
@@ -317,12 +318,19 @@ class Disassembler {
     }
 
    public:
-    Disassembler(std::vector<uint8_t>&& data) : data(data) {}
+    Disassembler(std::vector<uint8_t>&& data_in)
+        : data(0x10000), program_size(data_in.size())
+    {
+        std::vector<uint8_t> temp = data_in;
+        std::copy(temp.begin(), temp.end(), data.begin() + 0x8000);
+    }
+
+    std::vector<uint8_t> GetRAM() { return data; }
 
     AST&& Disassemble()
     {
         // Set all the statements to "data bytes"
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0x8000; i < (0x8000 + program_size); i++) {
             auto db = make_unique<DataByte>(data[i]);
             db->offset = i;
             ast.Insert(ast.end(), std::move(db));
@@ -334,8 +342,8 @@ class Disassembler {
         // How will the system look? Amount of RAM etc, the program itself has
         // to be written for some system in mind?
         //
-        // Hardcoded to start address 0
-        auto it = InsertLabelBefore(0x0000, "Reset");
+        // Hardcoded to start address 0x8000
+        auto it = InsertLabelBefore(0x8000, "Reset");
 
         ReplaceWithInstruction(it);
         while (!branches.empty())
