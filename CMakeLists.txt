@@ -61,6 +61,7 @@ endif()
 
 add_subdirectory ("test")
 add_subdirectory ("playground")
+add_subdirectory("assembler")
 
 if(LLVMES_BUILD_DEBUGGER)
 add_subdirectory("debugger")
