@@ -618,7 +618,4 @@ local function parse_args(args)
     write_bytes(list_file:sub(1, -4).."bin", machine_code)
 end
 
-local execution_time = os.clock()
 parse_args{...}
-execution_time = os.clock() - execution_time
-print("\nTime elapsed: "..execution_time.."s")
