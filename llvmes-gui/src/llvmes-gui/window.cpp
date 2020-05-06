@@ -1,5 +1,7 @@
 #include "llvmes-gui/window.h"
 
+#include "llvmes-gui/log.h"
+
 #define GLFW_INCLUDE_NONE
 #include <iostream>
 
@@ -109,6 +111,13 @@ Window::Window(int width, int height, const std::string& title, bool vsync)
     glfwSetWindowCloseCallback(window, [](GLFWwindow* window) {
         Window* win = (Window*)glfwGetWindowUserPointer(window);
         win->event_handler(new WindowCloseEvent);
+    });
+
+    glfwSetDropCallback(window, [](GLFWwindow* window, int count, const char** p) {
+        Window* win = (Window*)glfwGetWindowUserPointer(window);
+        win->event_handler(new DropEvent(p[0]));
+        if (count > 1)
+            LLVMES_WARN("Multiple files were dropped, but one 1 is handled");
     });
 
     // Initialize OpenGL for desktop

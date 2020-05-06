@@ -2,7 +2,6 @@
         #execute_program
         #6502_testsuite
         #disassemble_test
-        #compile_test
 )
 
 if(LLVMES_BUILD_GUI)

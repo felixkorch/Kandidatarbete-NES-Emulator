@@ -104,6 +104,10 @@ class Debugger : public gui::Application {
                     break;
             }
         }
+        else if (e.GetEventType() == gui::EventType::DropEvent) {
+            gui::DropEvent& de = (gui::DropEvent&)e;
+            OpenFile(de.GetPath());
+        }
     }
 
     void Stop() { cpu_should_run = false; }

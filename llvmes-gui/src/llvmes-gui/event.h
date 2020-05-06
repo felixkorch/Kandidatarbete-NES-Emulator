@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <utility>
 
 // An event system with a hierarchy, all event classes inherit from
@@ -19,7 +20,8 @@ enum class EventType {
     MouseDownEvent,
     MouseReleaseEvent,
     MouseScrollEvent,
-    MouseMoveEvent
+    MouseMoveEvent,
+    DropEvent
 };
 
 class Event {
@@ -130,6 +132,16 @@ class MouseScrollEvent : public Event {
 
    private:
     int m_x_offset, m_y_offset;
+};
+
+class DropEvent : public Event {
+   public:
+    DropEvent(const std::string& path) : path(path) {}
+    EventType GetEventType() override { return EventType::DropEvent; }
+    const std::string& GetPath() { return path; }
+
+   private:
+    std::string path;
 };
 
 }  // namespace gui
