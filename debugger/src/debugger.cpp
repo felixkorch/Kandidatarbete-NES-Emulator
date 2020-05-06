@@ -165,7 +165,8 @@ class Debugger : public gui::Application {
         if (in.fail())
             throw std::runtime_error("Something went wrong with opening the file!");
 
-        memory.clear();  // Clear memory before loading new program.
+        std::fill(memory.begin(), memory.end(),
+                  0);  // Clear memory before loading new program.
         std::copy(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>(),
                   memory.begin() + 0x8000);
 
