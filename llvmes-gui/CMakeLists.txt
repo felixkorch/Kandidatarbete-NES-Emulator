@@ -15,6 +15,7 @@ add_library (${PROJECT_NAME}
     src/llvmes-gui/window.cpp
     src/llvmes-gui/window.h
     src/llvmes-gui/log.h
+    src/llvmes-gui/opengl.h
     src/llvmes-gui/log.cpp
     src/llvmes-gui/texture.cpp
     src/llvmes-gui/texture.h

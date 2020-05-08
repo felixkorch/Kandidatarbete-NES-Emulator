@@ -1,9 +1,8 @@
 #include "llvmes-gui/draw.h"
-
-#include <glad/glad.h>
+#include "llvmes-gui/application.h"
+#include "llvmes-gui/opengl.h"
 
 #include "glm/gtc/matrix_transform.hpp"
-#include "llvmes-gui/application.h"
 
 namespace llvmes {
 namespace gui {
@@ -104,6 +103,92 @@ void main() {
 }
 )";
 
+const char* gles3_shader = R"(
+#shader vertex
+#version 300 es
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 color;
+layout(location = 2) in vec2 uv;
+layout(location = 3) in float tid;
+
+vec3 f_position;
+vec2 f_uv;
+float f_tid;
+vec4 f_color;
+
+uniform mat4 u_projection;
+
+void main() {
+	gl_Position = u_projection * vec4(position, 1.0);
+	f_position = position;
+	f_uv = uv;
+	f_tid = tid;
+	f_color = color;
+}
+
+#shader fragment
+#version 300 es
+
+precision mediump float;
+
+const int MAX_TEXTURES = 10;
+
+uniform sampler2D u_sampler[MAX_TEXTURES];
+
+vec3 f_position;
+vec2 f_uv;
+float f_tid;
+vec4 f_color;
+
+layout (location = 0) out vec4 color;
+
+void main() {
+    vec4 tex_color = f_color;
+
+    // Has a texture
+    if(f_tid > 0.0) {
+        int tid = int(f_tid - 0.5);
+        switch(tid) {
+            case 0:
+                tex_color = f_color * texture(u_sampler[0], f_uv);
+                break;
+            case 1:
+                tex_color = f_color * texture(u_sampler[1], f_uv);
+                break;
+            case 2:
+                tex_color = f_color * texture(u_sampler[2], f_uv);
+                break;
+            case 3:
+                tex_color = f_color * texture(u_sampler[3], f_uv);
+                break;
+            case 4:
+                tex_color = f_color * texture(u_sampler[4], f_uv);
+                break;
+            case 5:
+                tex_color = f_color * texture(u_sampler[5], f_uv);
+                break;
+            case 6:
+                tex_color = f_color * texture(u_sampler[6], f_uv);
+                break;
+            case 7:
+                tex_color = f_color * texture(u_sampler[7], f_uv);
+                break;
+            case 8:
+                tex_color = f_color * texture(u_sampler[8], f_uv);
+                break;
+            case 9:
+                tex_color = f_color * texture(u_sampler[9], f_uv);
+                break;
+            default:
+                tex_color = f_color * texture(u_sampler[0], f_uv);
+                break;
+        }
+    }
+	color = tex_color;
+}
+)";
+
 static glm::vec2 default_uv[] = {glm::vec2(0, 0), glm::vec2(1, 0), glm::vec2(1, 1),
                                  glm::vec2(0, 1)};
 
@@ -146,7 +231,11 @@ void Draw::Init()
     }
 
     ibo = new IndexBuffer(indices.data(), INDICES_COUNT);
+#ifdef LLVMES_PLATFORM_WEB
+    shader = new Shader(gles3_shader);
+#else
     shader = new Shader(default_shader);
+#endif
     index_count = 0;
 }
 

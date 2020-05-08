@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+import os
+import sys
+import subprocess
+import shutil
+import argparse
+from pathlib import Path
+
+DEFAULT_BUILD_TYPE = "debugger"
+ROOT_DIR = ".."
+IMGUI_PATH = ROOT_DIR + "/llvmes-gui/imgui/examples/example_emscripten"
+
+argument_parser = argparse.ArgumentParser(
+    description="Automates the process of building the project with emscripten"
+)
+
+argument_parser.add_argument(
+    "-c",
+    "--clean",
+    default=False,
+    action="store_true",
+    help="Clean build directory",
+)
+
+argument_parser.add_argument(
+    "-b",
+    "--build",
+    choices=["debugger"],
+    required=False,
+    type=str,
+    default=DEFAULT_BUILD_TYPE,
+    help="Type of build",
+)
+
+def build(type=DEFAULT_BUILD_TYPE):
+    fonts_exists = os.path.exists("fonts")
+    if not fonts_exists:
+        shutil.copytree("../llvmes-gui/fonts", "fonts")
+    imgui_exists = os.path.exists("libimgui.a")
+    if not imgui_exists:
+        imgui_path = Path(IMGUI_PATH)
+        this_path = Path().absolute()
+        os.chdir(imgui_path)
+        imgui_make = subprocess.run(["make"])
+        imgui_lib = subprocess.run(["llvm-ar", "rcs", "libimgui.a", "*.o"])
+        shutil.copy("libimgui.a", this_path)
+        os.chdir(this_path)
+    make = subprocess.run(["make", type])
+    sys.exit(make.returncode)
+    
+
+args = argument_parser.parse_args()
+
+BUILD_TYPE = args.build
+CLEAN = args.clean
+
+if CLEAN:
+    clean1 = subprocess.run(["make", "clean"])
+    clean2 = subprocess.run(["rm", "-rf", "fonts"])
+    imgui_path = Path(IMGUI_PATH)
+    os.chdir(imgui_path)
+    clean3 = subprocess.run(["make", "clean"])
+    clean4 = subprocess.run(["rm", "*.a"])
+    sys.exit(0)
+
+build(type=BUILD_TYPE)

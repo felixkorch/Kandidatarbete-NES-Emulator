@@ -1,12 +1,10 @@
-#include "llvmes-gui/window.h"
 
-#include "llvmes-gui/log.h"
-
-#define GLFW_INCLUDE_NONE
 #include <iostream>
 
-#include "GLFW/glfw3.h"
-#include "glad/glad.h"
+#include "llvmes-gui/log.h"
+#include "llvmes-gui/opengl.h"
+#include "llvmes-gui/window.h"
+#include <GLFW/glfw3.h>
 
 namespace llvmes {
 namespace gui {
@@ -121,10 +119,12 @@ Window::Window(int width, int height, const std::string& title, bool vsync)
     });
 
     // Initialize OpenGL for desktop
+#ifndef LLVMES_PLATFORM_WEB
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw std::runtime_error("[ERROR] Failed to initialize glad");
+#endif
 
-    glEnable(GL_MULTISAMPLE);
+    // glEnable(GL_MULTISAMPLE);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);

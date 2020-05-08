@@ -77,6 +77,20 @@ class Debugger : public gui::Application {
         cache = RecentlyOpened::GetCache();
     }
 
+    void OnUpdate() override
+    {
+#ifdef LLVMES_PLATFORM_WEB
+        if (cpu_should_run) {
+            cpu.Step();
+            x = cpu.reg_x;
+            y = cpu.reg_y;
+            a = cpu.reg_a;
+            sp = cpu.reg_sp;
+            pc = cpu.reg_pc;
+        }
+#endif
+    }
+
     void OnEvent(gui::Event& e) override
     {
         if (e.GetEventType() == gui::EventType::KeyPressEvent) {
@@ -142,24 +156,29 @@ class Debugger : public gui::Application {
         pc = cpu.reg_pc;
     }
 
+    void Worker()
+    {
+        while (cpu_should_run) {
+            cpu.Step();
+            x = cpu.reg_x;
+            y = cpu.reg_y;
+            a = cpu.reg_a;
+            sp = cpu.reg_sp;
+            pc = cpu.reg_pc;
+        }
+    }
+
     void RunCPU()
     {
         if (cpu_should_run)
             return;
 
         cpu_should_run = true;
-        std::thread worker([this]() {
-            start = std::chrono::high_resolution_clock::now();
-            while (cpu_should_run) {
-                cpu.Step();
-                x = cpu.reg_x;
-                y = cpu.reg_y;
-                a = cpu.reg_a;
-                sp = cpu.reg_sp;
-                pc = cpu.reg_pc;
-            }
-        });
+        start = std::chrono::high_resolution_clock::now();
+#ifndef LLVMES_PLATFORM_WEB
+        std::thread worker(&Debugger::Worker, this);
         worker.detach();
+#endif
     }
 
     void OpenFile(const std::string& path)

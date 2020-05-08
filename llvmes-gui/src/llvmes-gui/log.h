@@ -1,9 +1,16 @@
 #pragma once
-#include <iostream>
-
 #include <spdlog/spdlog.h>
 
+#include <iostream>
+
 namespace llvmes {
+
+#ifdef _MSC_VER
+#define DEBUG_BREAK __debugbreak()
+#else
+#include <signal.h>
+#define DEBUG_BREAK raise(SIGTRAP);
+#endif
 
 // Singleton class that contains the global instance of the logger
 // Gets created on call to "Init" so make sure it's called somewhere in the
@@ -30,11 +37,11 @@ class Log {
 // Assert if debug mode otherwise don't.
 #ifndef NDEBUG
 #define LLVMES_ASSERT(x, ...)                                   \
-    {                                                       \
-        if (!(x)) {                                         \
+    {                                                           \
+        if (!(x)) {                                             \
             LLVMES_ERROR("Assertion Failed: {0}", __VA_ARGS__); \
-            __debugbreak();                                 \
-        }                                                   \
+            DEBUG_BREAK                                         \
+        }                                                       \
     }
 #else
 #define LLVMES_ASSERT(x, ...)

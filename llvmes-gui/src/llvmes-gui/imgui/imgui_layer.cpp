@@ -1,10 +1,10 @@
 #include "llvmes-gui/imgui/imgui_layer.h"
-
-#include <GLFW/glfw3.h>
-
 #include "llvmes-gui/application.h"
 #include "llvmes-gui/event.h"
 #include "llvmes-gui/imgui/imgui_renderer.h"
+#include "llvmes-gui/opengl.h"
+
+#include <GLFW/glfw3.h>
 
 namespace llvmes {
 namespace gui {
@@ -44,7 +44,11 @@ void ImGuiLayer::Create()
     io.KeyMap[ImGuiKey_Y] = LLVMES_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = LLVMES_KEY_Z;
 
+#ifdef LLVMES_PLATFORM_WEB
+    ImGui_ImplOpenGL3_Init("#version 300 es");
+#else
     ImGui_ImplOpenGL3_Init("#version 330");
+#endif
     ImGuiStyle& style = ImGui::GetStyle();
     SetStyle(style);
 
@@ -59,7 +63,8 @@ void ImGuiLayer::Create()
     pixel_ratio_x = (float)w / (float)window_size_x;
     pixel_ratio_y = (float)h / (float)window_size_y;
 
-    io.Fonts->AddFontFromFileTTF("verdana.ttf", 17.0f * pixel_ratio_x, nullptr, nullptr);
+    io.Fonts->AddFontFromFileTTF("fonts/verdana.ttf", 17.0f * pixel_ratio_x, nullptr,
+                                 nullptr);
 
     io.FontGlobalScale = 1.0f / pixel_ratio_x;
     ImGui::GetStyle().ScaleAllSizes(pixel_ratio_x);
@@ -119,13 +124,13 @@ void ImGuiLayer::SetStyle(ImGuiStyle& style)
     style.WindowPadding = ImVec2(8, 6);
     style.FramePadding = ImVec2(5, 7);
     style.ItemSpacing = ImVec2(5, 5);
-    style.ItemInnerSpacing         = ImVec2(1, 1);
-    style.TouchExtraPadding        = ImVec2(0, 0);
-    style.IndentSpacing            = 6.0f;
-    style.ScrollbarSize            = 12.0f;
-    style.ScrollbarRounding        = 16.0f;
-    style.GrabMinSize              = 20.0f;
-    style.GrabRounding             = 2.0f;
+    style.ItemInnerSpacing = ImVec2(1, 1);
+    style.TouchExtraPadding = ImVec2(0, 0);
+    style.IndentSpacing = 6.0f;
+    style.ScrollbarSize = 12.0f;
+    style.ScrollbarRounding = 16.0f;
+    style.GrabMinSize = 20.0f;
+    style.GrabRounding = 2.0f;
     style.WindowTitleAlign.x = 0.50f;
     style.FrameBorderSize = 0.0f;
     style.WindowBorderSize = 1.0f;

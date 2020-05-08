@@ -1,10 +1,8 @@
 #include "llvmes-gui/buffers.h"
-
-#include <glad/glad.h>
+#include "llvmes-gui/log.h"
+#include "llvmes-gui/opengl.h"
 
 #include <iostream>
-
-#include "llvmes-gui/log.h"
 
 namespace llvmes {
 namespace gui {
@@ -66,7 +64,8 @@ void VertexBuffer::Load(std::size_t size, const void* data)
 
 void* VertexBuffer::GetInternalPointer()
 {
-    return glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    return glMapBufferRange(GL_ARRAY_BUFFER, 0, buffer_size,
+                            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 }
 
 void VertexBuffer::ReleasePointer()

@@ -1,13 +1,11 @@
 #include "llvmes-gui/shader.h"
-
-#include <glad/glad.h>
+#include "llvmes-gui/log.h"
+#include "llvmes-gui/opengl.h"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
-
-#include "llvmes-gui/log.h"
 
 namespace llvmes {
 namespace gui {

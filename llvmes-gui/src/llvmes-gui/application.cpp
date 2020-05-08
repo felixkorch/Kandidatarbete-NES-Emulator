@@ -1,13 +1,22 @@
 #include "llvmes-gui/application.h"
-
-#include <iostream>
-
+#include "llvmes-gui/opengl.h"
 #include "llvmes-gui/draw.h"
 #include "llvmes-gui/imgui/imgui_layer.h"
 #include "llvmes-gui/log.h"
 
+#include <iostream>
+
 namespace llvmes {
 namespace gui {
+
+#ifdef LLVMES_PLATFORM_WEB
+
+static void CallMain(void* fp)
+{
+    std::function<void()>* fn = (std::function<void()>*)fp;
+    (*fn)();
+}
+#endif
 
 Application* Application::s_application = nullptr;
 
@@ -64,7 +73,11 @@ void Application::OnEvent(Event& e)
 
 void Application::Run()
 {
+#ifdef LLVMES_PLATFORM_WEB
+    std::function<void()> main_loop = [&]() {
+#else
     while (m_running) {
+#endif
         m_window->Clear();
 
         while (!m_event_queue.empty()) {
@@ -88,7 +101,12 @@ void Application::Run()
         ImGuiLayer::End();
 
         m_window->Update();
+#ifdef LLVMES_PLATFORM_WEB
+    };
+    emscripten_set_main_loop_arg(CallMain, &main_loop, 0, 1);
+#else
     }
+#endif
 }
 
 void Application::Terminate()

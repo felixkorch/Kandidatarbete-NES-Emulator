@@ -1,6 +1,5 @@
 #include "llvmes-gui/texture.h"
-
-#include <glad/glad.h>
+#include "llvmes-gui/opengl.h"
 
 #include <iostream>
 
