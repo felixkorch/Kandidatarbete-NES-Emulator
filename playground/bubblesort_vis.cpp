@@ -40,7 +40,7 @@ class BubbleSort : public Application {
     {
         std::ifstream in{PROGRAM_NAME, std::ios::binary};
         if (in.fail())
-            throw std::runtime_error("The file doesn't exist");
+            throw std::runtime_error("Place bubblesort.bin in this folder");
         auto program = std::vector<uint8_t>{std::istreambuf_iterator<char>(in),
                                             std::istreambuf_iterator<char>()};
 
