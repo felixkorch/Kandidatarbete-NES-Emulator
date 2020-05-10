@@ -6,7 +6,7 @@ import shutil
 import argparse
 from pathlib import Path
 
-DEFAULT_BUILD_TYPE = "debugger"
+DEFAULT_BUILD_TYPE = "all"
 ROOT_DIR = ".."
 IMGUI_PATH = ROOT_DIR + "/llvmes-gui/imgui/examples/example_emscripten"
 
@@ -25,7 +25,7 @@ argument_parser.add_argument(
 argument_parser.add_argument(
     "-b",
     "--build",
-    choices=["debugger"],
+    choices=["debugger", "bubblesort"],
     required=False,
     type=str,
     default=DEFAULT_BUILD_TYPE,
@@ -42,7 +42,7 @@ def build(type=DEFAULT_BUILD_TYPE):
         this_path = Path().absolute()
         os.chdir(imgui_path)
         imgui_make = subprocess.run(["make"])
-        imgui_lib = subprocess.run(["llvm-ar", "rcs", "libimgui.a", "*.o"])
+        imgui_lib = subprocess.run(["llvm-ar", "rcs", "libimgui.a", "imgui.o", "imgui_draw.o", "imgui_impl_opengl3.o", "imgui_widgets.o"])
         shutil.copy("libimgui.a", this_path)
         os.chdir(this_path)
     make = subprocess.run(["make", type])
