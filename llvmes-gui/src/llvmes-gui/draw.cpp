@@ -112,10 +112,10 @@ layout(location = 1) in vec4 color;
 layout(location = 2) in vec2 uv;
 layout(location = 3) in float tid;
 
-vec3 f_position;
-vec2 f_uv;
-float f_tid;
-vec4 f_color;
+out vec3 f_position;
+out vec2 f_uv;
+out float f_tid;
+out vec4 f_color;
 
 uniform mat4 u_projection;
 
@@ -136,10 +136,10 @@ const int MAX_TEXTURES = 10;
 
 uniform sampler2D u_sampler[MAX_TEXTURES];
 
-vec3 f_position;
-vec2 f_uv;
-float f_tid;
-vec4 f_color;
+in vec3 f_position;
+in vec2 f_uv;
+in float f_tid;
+in vec4 f_color;
 
 layout (location = 0) out vec4 color;
 
