@@ -40,7 +40,7 @@ link_libraries["llvm"] = find_llvm_links()
 
 workspace "LLVMES"
 	architecture "x86_64"
-	startproject "debugger"
+	startproject "jit"
 
 	newoption {
 	   trigger     = "assemble",
