@@ -40,5 +40,10 @@ cmake-build-debug/
 *.ll
 *.mem
 
+#Ignore vs studio stuff
+.vcxproj
+.filters
+.sln
+
 #Ignore list-bins
 test/list-bins
