@@ -1,6 +1,7 @@
 # Binaries
 bin/
-bin-obj/
+**/bin-obj/
+**/bin-int/
 out/
 build/
 .vscode/
@@ -41,9 +42,9 @@ cmake-build-debug/
 *.mem
 
 #Ignore vs studio stuff
-.vcxproj
-.filters
-.sln
+*.vcxproj
+*.filters
+*.sln
 
 #Ignore list-bins
 test/list-bins
