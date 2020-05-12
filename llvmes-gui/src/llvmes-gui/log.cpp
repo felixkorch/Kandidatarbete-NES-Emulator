@@ -1,7 +1,5 @@
 #include "llvmes-gui/log.h"
 
-#include <spdlog/sinks/stdout_color_sinks.h>
-
 #include <memory>
 
 namespace llvmes {
