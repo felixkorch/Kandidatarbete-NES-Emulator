@@ -1,3 +1,15 @@
+newaction {
+	trigger = "assemble",
+	description = "Pass this option to assemble all list files",
+	execute = function()
+		if _TARGET_OS == "windows" then
+			os.execute("python autobuild -t lua")
+		else
+			os.execute("python3 autobuild -t lua")
+		end
+	end
+ }
+
 function find_llvm_link_dir()
 	local file = io.popen("llvm-config --libdir")
 	local output = file:read('*all')
@@ -5,12 +17,27 @@ function find_llvm_link_dir()
 	return output
 end
 
-function find_llvm_links()
+function link_llvm()
 	local file = io.popen("llvm-config --libnames")
 	local output = file:read('*all')
+	local libs = string.gsub(output, "%s", ";"):sub(1, -2)
+	links
+	{
+		libs
+	}
 	file:close()
-	local res = string.gsub(output, "%s", ";")
-	return res:sub(1, -2)
+end
+
+function link_llvm_unix()
+	local file = io.popen("llvm-config --libnames")
+	local output = file:read('*all')
+	for lib in string.gmatch(output, "lib([^%s]+).a%s") do
+		links
+		{
+			lib
+		}
+	end
+	file:close()
 end
 
 function find_llvm_include_dir()
@@ -35,17 +62,9 @@ include_dir["llvm"] = find_llvm_include_dir()
 link_dir = {}
 link_dir["llvm"] = find_llvm_link_dir()
 
-link_libraries = {}
-link_libraries["llvm"] = find_llvm_links()
-
 workspace "LLVMES"
 	architecture "x86_64"
 	startproject "jit"
-
-	newoption {
-	   trigger     = "assemble",
-	   description = "Pass this option to assemble all list files"
-	}
 
 	configurations
 	{
@@ -57,7 +76,6 @@ workspace "LLVMES"
 	{
 		"MultiProcessorCompile"
 	}
-
 
 group "Dependencies"
 	include "llvmes-gui/glfw"
@@ -169,8 +187,7 @@ project "debugger"
 		"glad",
 		"imgui",
 		"llvmes",
-		"llvmes-gui",
-		"%{link_libraries.llvm}"
+		"llvmes-gui"
 	}
 
 	includedirs
@@ -186,10 +203,24 @@ project "debugger"
 		"%{include_dir.llvm}"
 	}
 
-	postbuildcommands { "{COPY} %{wks.location}llvmes-gui/fonts/*.ttf %{wks.location}" .. target_dir }
-
+	postbuildcommands { "{COPY} %{wks.location}/llvmes-gui/fonts/verdana.ttf %{wks.location}/" .. target_dir }
 	filter "system:windows"
 		systemversion "latest"
+		links { link_llvm() }
+
+	filter "system:macosx"
+		links
+		{
+			"Cocoa.framework",
+			"IOKit.framework",
+			"Foundation.framework",
+			"CoreServices.framework",
+			"CoreVideo.framework",
+			"OpenGL.framework"
+		}
+
+	filter "system:not windows"
+		links { link_llvm_unix() }
 		
 	filter "configurations:Debug"
 		runtime "Debug"
@@ -220,7 +251,6 @@ function gen_test(name)
 
 	links
 	{
-		"%{link_libraries.llvm}",
 		"llvmes"
 	}
 
@@ -230,18 +260,21 @@ function gen_test(name)
 		"src",
 		"%{include_dir.llvm}",
 	}
-
 	
 	filter "system:windows"
-	systemversion "latest"
+		systemversion "latest"
+		links { link_llvm() }
+
+	filter "system:not windows"
+		links { link_llvm_unix(), "z", "curses" }
 	
 	filter "configurations:Debug"
-	runtime "Debug"
-	symbols "on"
+		runtime "Debug"
+		symbols "on"
 	
 	filter "configurations:Release"
-	runtime "Release"
-	optimize "on"
+		runtime "Release"
+		optimize "on"
 end
 
 group "Test"
