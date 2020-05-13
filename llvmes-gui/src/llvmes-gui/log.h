@@ -1,7 +1,7 @@
 #pragma once
-#include <iostream>
-
 #include <spdlog/spdlog.h>
+
+#include <iostream>
 
 namespace llvmes {
 
@@ -30,11 +30,10 @@ class Log {
 // Assert if debug mode otherwise don't.
 #ifndef NDEBUG
 #define LLVMES_ASSERT(x, ...)                                   \
-    {                                                       \
-        if (!(x)) {                                         \
+    {                                                           \
+        if (!(x)) {                                             \
             LLVMES_ERROR("Assertion Failed: {0}", __VA_ARGS__); \
-            __debugbreak();                                 \
-        }                                                   \
+        }                                                       \
     }
 #else
 #define LLVMES_ASSERT(x, ...)
