@@ -10,6 +10,14 @@ newaction {
 	end
  }
 
+newaction {
+   trigger     = "clean",
+   description = "Clean build files",
+   execute     = function ()
+      os.rmdir("build")
+   end
+}
+
 function find_llvm_link_dir()
 	local file = io.popen("llvm-config --libdir")
 	local output = file:read('*all')
@@ -48,6 +56,7 @@ function find_llvm_include_dir()
 end
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+obj_dir = "build/obj/" .. outputdir .. "/%{prj.name}"
 target_dir = "bin/" .. outputdir .. "/%{prj.name}"
 
 -- Include directories relative to root folder (solution directory)
@@ -65,6 +74,7 @@ link_dir["llvm"] = find_llvm_link_dir()
 workspace "LLVMES"
 	architecture "x86_64"
 	startproject "jit"
+	location "build"
 
 	configurations
 	{
@@ -85,14 +95,14 @@ group "Dependencies"
 group ""
 
 project "llvmes"
-	location "."
+	location "build/%{prj.name}"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
 
 	targetdir (target_dir)
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir (obj_dir)
 
 	files
 	{
@@ -127,14 +137,14 @@ project "llvmes"
 		optimize "on"
 
 project "llvmes-gui"
-	location "llvmes-gui"
+	location "build/%{prj.name}"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir (obj_dir)
 
 	files
 	{
@@ -164,14 +174,14 @@ project "llvmes-gui"
 		optimize "on"
 
 project "debugger"
-	location "debugger"
+	location "build/%{prj.name}"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir (obj_dir)
 
 	libdirs { "%{link_dir.llvm}" }
 
@@ -233,14 +243,14 @@ project "debugger"
 
 function gen_test(name)
 	project(name)
-	location "test"
+	location "build/test"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir (obj_dir)
 
 	libdirs { "%{link_dir.llvm}" }
 
