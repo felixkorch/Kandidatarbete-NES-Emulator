@@ -213,7 +213,7 @@ project "debugger"
 		"%{include_dir.llvm}"
 	}
 
-	postbuildcommands { "{COPY} %{wks.location}/llvmes-gui/fonts/verdana.ttf %{wks.location}/" .. target_dir }
+	postbuildcommands { "{COPY} %{wks.location}/../llvmes-gui/fonts/verdana.ttf %{wks.location}../" .. target_dir }
 	filter "system:windows"
 		systemversion "latest"
 		links { link_llvm() }
